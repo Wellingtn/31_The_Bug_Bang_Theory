@@ -6,22 +6,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap');
 
 /* ─────────────────────────────────────────
-   TOKENS – LIGHT MODE (default)
+   TOKENS – LIGHT MODE (ConectaCampo)
 ───────────────────────────────────────── */
 :root {
-  --bg:           #F5F1EA;
-  --bg-alt:       #EDE9E0;
-  --bg-surface:   #FFFDF7;
-  --text:         #2A2520;
-  --text-muted:   #7A726A;
-  --text-faint:   #B5AFA6;
-  --accent:       #C4562A;
-  --accent-hover: #A3431F;
-  --accent-muted: rgba(196,86,42,0.12);
-  --border:       rgba(42,37,32,0.10);
-  --border-mid:   rgba(42,37,32,0.16);
-  --shadow-sm:    0 1px 4px rgba(0,0,0,0.06);
-  --shadow-md:    0 4px 24px rgba(0,0,0,0.08);
+  --bg:           #F4F7F4; /* Fundo levemente esverdeado/terroso */
+  --bg-alt:       #EDF2EE;
+  --bg-surface:   #FFFFFF;
+  --text:         #1C261F;
+  --text-muted:   #5A6B5F;
+  --text-faint:   #98A69C;
+  --accent:       #2E7D32; /* Verde principal para o Agro */
+  --accent-hover: #1B5E20;
+  --accent-muted: rgba(46, 125, 50, 0.12);
+  --border:       rgba(28, 38, 31, 0.10);
+  --border-mid:   rgba(28, 38, 31, 0.16);
+  --shadow-sm:    0 1px 4px rgba(0,0,0,0.04);
+  --shadow-md:    0 4px 24px rgba(0,0,0,0.06);
   --radius-sm:    6px;
   --radius-md:    10px;
   --radius-lg:    16px;
@@ -31,20 +31,20 @@
 }
 
 /* ─────────────────────────────────────────
-   TOKENS – DARK MODE
+   TOKENS – DARK MODE (ConectaCampo)
 ───────────────────────────────────────── */
 .dark {
-  --bg:           #111009;
-  --bg-alt:       #1A1812;
-  --bg-surface:   #201E16;
-  --text:         #EDE9E0;
-  --text-muted:   #8A8475;
-  --text-faint:   #4A4740;
-  --accent:       #E06A3A;
-  --accent-hover: #F07848;
-  --accent-muted: rgba(224,106,58,0.14);
-  --border:       rgba(237,233,224,0.08);
-  --border-mid:   rgba(237,233,224,0.14);
+  --bg:           #0C120D;
+  --bg-alt:       #131C15;
+  --bg-surface:   #18241B;
+  --text:         #EDF2EE;
+  --text-muted:   #8B998E;
+  --text-faint:   #4B594E;
+  --accent:       #4ADE80; /* Verde vibrante para contraste no escuro */
+  --accent-hover: #22C55E;
+  --accent-muted: rgba(74, 222, 128, 0.14);
+  --border:       rgba(237, 242, 238, 0.08);
+  --border-mid:   rgba(237, 242, 238, 0.14);
   --shadow-sm:    0 1px 4px rgba(0,0,0,0.3);
   --shadow-md:    0 4px 24px rgba(0,0,0,0.4);
 }
@@ -258,7 +258,7 @@ a { color: inherit; text-decoration: none; }
 .home-footer-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: var(--accent);
   display: inline-block;
 }
 .home-footer-label {
@@ -404,10 +404,10 @@ a { color: inherit; text-decoration: none; }
 /* Error */
 .auth-error {
   padding: 12px 16px;
-  background: rgba(196,86,42,0.08);
-  border: 1px solid rgba(196,86,42,0.24);
+  background: rgba(220, 38, 38, 0.08); /* Reduzido para um vermelho suave para erros */
+  border: 1px solid rgba(220, 38, 38, 0.24);
   border-radius: var(--radius-md);
-  color: var(--accent);
+  color: #DC2626;
   font-size: 13px;
   margin-bottom: 20px;
 }
@@ -629,8 +629,8 @@ a { color: inherit; text-decoration: none; }
   height: 2px;
   border-radius: 1px;
 }
-.dash-card.accent-orange::before { background: var(--accent); }
-.dash-card.accent-green::before  { background: #4CAF50; }
+.dash-card.accent-orange::before { background: #E06A3A; } /* Ajustado para tons complementares */
+.dash-card.accent-green::before  { background: var(--accent); }
 .dash-card.accent-blue::before   { background: #4A90D9; }
 
 .dash-card-label {
