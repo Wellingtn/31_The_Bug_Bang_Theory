@@ -10,6 +10,9 @@ router.use(checkAuth);
 // Rota para obter o próprio perfil (qualquer usuário autenticado)
 router.get("/me", (req, res) => usersController.getMe(req, res));
 
+// Admin: lista de produtores cadastrados
+router.get("/producers", checkRole("ADMIN"), (req, res) => usersController.findProducers(req, res));
+
 // Rotas CRUD protegidas por role ADMIN
 router.get("/", checkRole("ADMIN"), (req, res) => usersController.findAll(req, res));
 router.get("/:id", checkRole("ADMIN"), (req, res) => usersController.findById(req, res));

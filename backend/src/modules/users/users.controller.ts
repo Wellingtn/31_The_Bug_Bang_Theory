@@ -13,6 +13,16 @@ export class UsersController {
     }
   }
 
+  async findProducers(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const producers = await usersService.findProducers();
+      res.json(producers);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao buscar produtores";
+      res.status(500).json({ error: message });
+    }
+  }
+
   async findById(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;

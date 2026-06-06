@@ -9,6 +9,11 @@ interface RegisterInput {
   name: string;
   email: string;
   password: string;
+  propertyName?: string;
+  document?: string;
+  phone?: string;
+  city?: string;
+  state?: string;
 }
 
 interface LoginInput {
@@ -50,6 +55,12 @@ export class AuthService {
         email: data.email,
         password: hashedPassword,
         provider: "LOCAL",
+        role: "PRODUCER",
+        propertyName: data.propertyName,
+        document: data.document,
+        phone: data.phone,
+        city: data.city,
+        state: data.state,
       },
       select: {
         id: true,

@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 
 import authRoutes from "./modules/auth/auth.routes";
 import usersRoutes from "./modules/users/users.routes";
+import residuesRoutes from "./modules/residues/residues.routes";
+import organicProductsRoutes from "./modules/organic-products/organic-products.routes";
+import verificationsRoutes from "./modules/verifications/verifications.routes";
+import companyRequestsRoutes from "./modules/company-requests/company-requests.routes";
 
 dotenv.config({ path: "../.env.local" });
 
@@ -24,6 +28,10 @@ app.use(express.json());
 // Rotas
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/residues", residuesRoutes);
+app.use("/api/organic-products", organicProductsRoutes);
+app.use("/api/verifications", verificationsRoutes);
+app.use("/api/company-requests", companyRequestsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

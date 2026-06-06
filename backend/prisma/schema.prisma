@@ -8,7 +8,7 @@ datasource db {
 }
 
 enum Role {
-  USER
+  PRODUCER
   ADMIN
 }
 
@@ -18,15 +18,110 @@ enum Provider {
   GITHUB
 }
 
+enum ResidueStatus {
+  AVAILABLE
+  RESERVED
+  COLLECTED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CompanyRequestStatus {
+  NEW
+  IN_ANALYSIS
+  PROPOSAL_DRAFTING
+  NEGOTIATING
+  CLOSED
+  REJECTED
+}
+
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String?
-  provider  Provider @default(LOCAL)
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String?
+  provider     Provider @default(LOCAL)
+  role         Role     @default(PRODUCER)
+
+  // Dados do produtor
+  propertyName String?
+  document     String? // CPF ou CNPJ
+  phone        String?
+  city         String?
+  state        String?
+
+  residues         Residue[]
+  organicProducts  OrganicProduct[]
+  verifications    OrganicVerification[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("users")
+}
+
+model Residue {
+  id          String        @id @default(uuid())
+  producerId  String
+  producer    User          @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  type        String
+  quantity    Float
+  unit        String
+  description String?
+  status      ResidueStatus @default(AVAILABLE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("residues")
+}
+
+model OrganicProduct {
+  id          String   @id @default(uuid())
+  producerId  String
+  producer    User     @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  quantity    Float
+  unit        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("organic_products")
+}
+
+model OrganicVerification {
+  id          String             @id @default(uuid())
+  producerId  String
+  producer    User               @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  status      VerificationStatus @default(PENDING)
+  notes       String?
+  requestedAt DateTime           @default(now())
+  reviewedAt  DateTime?
+
+  @@map("organic_verifications")
+}
+
+model CompanyRequest {
+  id                String               @id @default(uuid())
+  companyName       String
+  cnpj              String
+  responsibleName   String
+  phone             String
+  email             String
+  city              String
+  state             String
+  country           String?
+  desiredMaterial   String
+  monthlyQuantity   String
+  purchaseFrequency String
+  notes             String?
+  status            CompanyRequestStatus @default(NEW)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@map("company_requests")
 }

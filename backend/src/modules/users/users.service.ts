@@ -5,14 +5,14 @@ interface CreateUserInput {
   name: string;
   email: string;
   password?: string;
-  role?: "USER" | "ADMIN";
+  role?: "PRODUCER" | "ADMIN";
 }
 
 interface UpdateUserInput {
   name?: string;
   email?: string;
   password?: string;
-  role?: "USER" | "ADMIN";
+  role?: "PRODUCER" | "ADMIN";
 }
 
 const SALT_ROUNDS = 10;
@@ -32,6 +32,28 @@ export class UsersService {
     });
   }
 
+  // Admin: lista apenas produtores com contagem de resíduos/produtos
+  async findProducers() {
+    return prisma.user.findMany({
+      where: { role: "PRODUCER" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        propertyName: true,
+        document: true,
+        phone: true,
+        city: true,
+        state: true,
+        createdAt: true,
+        _count: {
+          select: { residues: true, organicProducts: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
   async findById(id: string) {
     return prisma.user.findUnique({
       where: { id },
@@ -41,6 +63,11 @@ export class UsersService {
         email: true,
         provider: true,
         role: true,
+        propertyName: true,
+        document: true,
+        phone: true,
+        city: true,
+        state: true,
         createdAt: true,
       },
     });
@@ -64,7 +91,7 @@ export class UsersService {
         name: data.name,
         email: data.email,
         password: hashedPassword,
-        role: data.role || "USER",
+        role: data.role || "PRODUCER",
       },
       select: {
         id: true,

@@ -13,6 +13,22 @@ interface User {
   name: string;
   email: string;
   role: string;
+  propertyName?: string;
+  document?: string;
+  phone?: string;
+  city?: string;
+  state?: string;
+}
+
+interface ProducerRegisterData {
+  name: string;
+  propertyName: string;
+  document: string;
+  phone: string;
+  email: string;
+  city: string;
+  state: string;
+  password: string;
 }
 
 interface AuthContextData {
@@ -21,7 +37,7 @@ interface AuthContextData {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (data: ProducerRegisterData) => Promise<void>;
   logout: () => void;
   setAuthData: (token: string) => Promise<void>;
 }
@@ -69,8 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(userToken);
   };
 
-  const register = async (name: string, email: string, password: string) => {
-    const response = await api.post("/auth/register", { name, email, password });
+  const register = async (data: ProducerRegisterData) => {
+    const response = await api.post("/auth/register", data);
     const { user: userData, token: userToken } = response.data;
 
     localStorage.setItem("token", userToken);
