@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../../services/api";
 import type { Listing, Solicitation } from "../../types/marketplace";
-import { cardStyle, getApiError, inputStyle, pageStyle, StatusBadge } from "./shared";
+import { getApiError, StatusBadge } from "./shared";
 import TopBar from "./TopBar";
 
 type FormState = {
@@ -12,7 +12,19 @@ type FormState = {
   price: string;
 };
 
-const emptyForm: FormState = { name: "", category: "", quantity: "", unit: "kg", price: "" };
+const emptyForm: FormState = {
+  name: "",
+  category: "",
+  quantity: "",
+  unit: "kg",
+  price: "",
+};
+
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
 
 export default function ProducerDashboard() {
   const [products, setProducts] = useState<Listing[]>([]);
@@ -36,11 +48,14 @@ export default function ProducerDashboard() {
   };
 
   useEffect(() => {
-    loadData().catch((loadError) => setError(getApiError(loadError, "Erro ao carregar dados do produtor")));
+    loadData().catch((loadError) =>
+      setError(getApiError(loadError, "Erro ao carregar dados do produtor"))
+    );
   }, []);
 
   const saveListing = async (type: "product" | "residue") => {
     const form = type === "product" ? productForm : residueForm;
+
     setError("");
     setMessage("");
 
@@ -55,7 +70,13 @@ export default function ProducerDashboard() {
 
       if (type === "product") setProductForm(emptyForm);
       if (type === "residue") setResidueForm({ ...emptyForm, unit: "ton" });
-      setMessage(type === "product" ? "Produto cadastrado com sucesso." : "Resíduo cadastrado com sucesso.");
+
+      setMessage(
+        type === "product"
+          ? "Produto cadastrado com sucesso."
+          : "Resíduo cadastrado com sucesso."
+      );
+
       await loadData();
     } catch (saveError) {
       setError(getApiError(saveError, "Erro ao salvar item"));
@@ -68,94 +89,384 @@ export default function ProducerDashboard() {
 
     try {
       await api.patch(`/producer/solicitations/${solicitationId}/respond`, { status });
-      setMessage(status === "ACEITA" ? "Solicitação aceita. Seu estoque foi atualizado." : "Solicitação recusada.");
+
+      setMessage(
+        status === "ACEITA"
+          ? "Solicitação aceita. Seu estoque foi atualizado."
+          : "Solicitação recusada."
+      );
+
       await loadData();
     } catch (respondError) {
       setError(getApiError(respondError, "Erro ao responder solicitação"));
     }
   };
 
+  const pendingSolicitations = useMemo(
+    () => solicitations.filter((item) => item.status === "ENVIADA").length,
+    [solicitations]
+  );
+
+  const productsValue = useMemo(
+    () =>
+      products.reduce(
+        (total, item) => total + Number(item.quantity || 0) * Number(item.price || 0),
+        0
+      ),
+    [products]
+  );
+
+  const residuesValue = useMemo(
+    () =>
+      residues.reduce(
+        (total, item) => total + Number(item.quantity || 0) * Number(item.price || 0),
+        0
+      ),
+    [residues]
+  );
+
   return (
-    <div style={pageStyle}>
-      <TopBar title="Dashboard do Produtor" subtitle="Cadastre produtos, resíduos e responda às solicitações enviadas pelo admin." />
+    <div className="producer-page">
+      <TopBar
+        title="Dashboard do Produtor"
+        subtitle="Cadastre produtos, resíduos e responda às solicitações enviadas pelo admin."
+      />
 
-      {error && <div className="auth-error" style={{ marginBottom: "16px" }}>{error}</div>}
-      {message && <div style={{ ...cardStyle, marginBottom: "16px", borderColor: "var(--accent)", color: "var(--accent)" }}>{message}</div>}
+      <main className="producer-shell">
+        <section className="producer-hero">
+          <div>
+            <span className="producer-kicker">Painel ConectaCampo</span>
+            <h1>Gestão inteligente da sua produção rural</h1>
+            <p>
+              Organize produtos, acompanhe resíduos disponíveis e responda compradores em um só lugar.
+            </p>
+          </div>
 
-      <section style={{ ...cardStyle, marginBottom: "24px" }}>
-        <h2 style={{ fontFamily: "var(--font-display)", fontSize: "28px", marginTop: 0 }}>Solicitações recebidas</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "14px" }}>
-          {solicitations.length === 0 && <p style={{ color: "var(--text-muted)" }}>Nenhuma solicitação recebida ainda.</p>}
-          {solicitations.map((solicitation) => (
-            <div key={solicitation.id} style={{ border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "16px" }}>
-              <StatusBadge>{solicitation.status}</StatusBadge>
-              <h3 style={{ marginBottom: "6px" }}>{solicitation.order.itemName}</h3>
-              <p style={{ color: "var(--text-muted)" }}>{solicitation.quantity} {solicitation.order.unit} solicitados por {solicitation.order.requester?.name || "comprador"}</p>
-              {solicitation.message && <p>{solicitation.message}</p>}
-              {solicitation.status === "ENVIADA" && (
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button className="btn-primary" onClick={() => void respond(solicitation.id, "ACEITA")}>Aceitar</button>
-                  <button className="btn-ghost" onClick={() => void respond(solicitation.id, "RECUSADA")}>Recusar</button>
-                </div>
-              )}
+          <div className="producer-hero-card">
+            <span>Valor estimado em estoque</span>
+            <strong>{formatCurrency(productsValue + residuesValue)}</strong>
+            <small>Produtos e resíduos cadastrados</small>
+          </div>
+        </section>
+
+        {error && <div className="auth-error producer-alert">{error}</div>}
+
+        {message && (
+          <div className="producer-success">
+            <span>✓</span>
+            <p>{message}</p>
+          </div>
+        )}
+
+        <section className="producer-stats-grid">
+          <StatCard
+            icon="🌾"
+            label="Produtos ativos"
+            value={products.length}
+            description="Itens perecíveis cadastrados"
+          />
+
+          <StatCard
+            icon="♻️"
+            label="Resíduos disponíveis"
+            value={residues.length}
+            description="Materiais para reaproveitamento"
+          />
+
+          <StatCard
+            icon="📩"
+            label="Solicitações pendentes"
+            value={pendingSolicitations}
+            description="Pedidos aguardando resposta"
+          />
+        </section>
+
+        <section className="producer-section">
+          <div className="producer-section-heading">
+            <div>
+              <span>Negociações</span>
+              <h2>Solicitações recebidas</h2>
             </div>
-          ))}
-        </div>
-      </section>
+            <p>Analise os pedidos enviados e aceite apenas o que conseguir atender.</p>
+          </div>
 
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px", marginBottom: "24px" }}>
-        <FormCard title="Cadastrar produto perecível" form={productForm} setForm={setProductForm} onSave={() => void saveListing("product")} />
-        <FormCard title="Cadastrar resíduo" form={residueForm} setForm={setResidueForm} onSave={() => void saveListing("residue")} />
-      </section>
+          {solicitations.length === 0 ? (
+            <EmptyState
+              icon="📭"
+              title="Nenhuma solicitação recebida ainda"
+              text="Quando um comprador ou admin enviar uma solicitação, ela aparecerá aqui."
+            />
+          ) : (
+            <div className="producer-request-grid">
+              {solicitations.map((solicitation) => (
+                <article key={solicitation.id} className="producer-request-card">
+                  <div className="producer-request-top">
+                    <StatusBadge>{solicitation.status}</StatusBadge>
+                    <span className="producer-request-unit">
+                      {solicitation.quantity} {solicitation.order.unit}
+                    </span>
+                  </div>
 
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px" }}>
-        <ListingTable title="Produtos cadastrados" items={products} />
-        <ListingTable title="Resíduos cadastrados" items={residues} />
-      </section>
+                  <h3>{solicitation.order.itemName}</h3>
+
+                  <p className="producer-request-meta">
+                    Solicitado por{" "}
+                    <strong>{solicitation.order.requester?.name || "comprador"}</strong>
+                  </p>
+
+                  {solicitation.message && (
+                    <p className="producer-request-message">“{solicitation.message}”</p>
+                  )}
+
+                  {solicitation.status === "ENVIADA" && (
+                    <div className="producer-actions">
+                      <button
+                        className="btn-primary"
+                        onClick={() => void respond(solicitation.id, "ACEITA")}
+                      >
+                        Aceitar
+                      </button>
+
+                      <button
+                        className="btn-ghost"
+                        onClick={() => void respond(solicitation.id, "RECUSADA")}
+                      >
+                        Recusar
+                      </button>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="producer-form-grid">
+          <FormCard
+            icon="🥬"
+            eyebrow="Novo item"
+            title="Cadastrar produto perecível"
+            helper="Exemplo: hortaliças, frutas, grãos ou produção excedente."
+            form={productForm}
+            setForm={setProductForm}
+            onSave={() => void saveListing("product")}
+          />
+
+          <FormCard
+            icon="🌱"
+            eyebrow="Economia circular"
+            title="Cadastrar resíduo"
+            helper="Exemplo: casca de arroz, bagaço, esterco, palha ou restos orgânicos."
+            form={residueForm}
+            setForm={setResidueForm}
+            onSave={() => void saveListing("residue")}
+          />
+        </section>
+
+        <section className="producer-table-grid">
+          <ListingTable
+            title="Produtos cadastrados"
+            subtitle="Produção disponível para negociação"
+            items={products}
+          />
+
+          <ListingTable
+            title="Resíduos cadastrados"
+            subtitle="Materiais com potencial de reaproveitamento"
+            items={residues}
+          />
+        </section>
+      </main>
     </div>
   );
 }
 
-function FormCard({ title, form, setForm, onSave }: { title: string; form: FormState; setForm: (form: FormState) => void; onSave: () => void }) {
+function StatCard({
+  icon,
+  label,
+  value,
+  description,
+}: {
+  icon: string;
+  label: string;
+  value: number;
+  description: string;
+}) {
   return (
-    <div style={cardStyle}>
-      <h2 style={{ fontFamily: "var(--font-display)", fontSize: "24px", marginTop: 0 }}>{title}</h2>
-      <input style={inputStyle} placeholder="Nome" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
-      <input style={inputStyle} placeholder="Categoria" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} />
-      <input style={inputStyle} placeholder="Quantidade" type="number" value={form.quantity} onChange={(event) => setForm({ ...form, quantity: event.target.value })} />
-      <input style={inputStyle} placeholder="Unidade: kg, ton, L" value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} />
-      <input style={inputStyle} placeholder="Preço" type="number" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} />
-      <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={onSave}>Salvar</button>
-    </div>
-  );
-}
-
-function ListingTable({ title, items }: { title: string; items: Listing[] }) {
-  return (
-    <div style={cardStyle}>
-      <h2 style={{ fontFamily: "var(--font-display)", fontSize: "24px", marginTop: 0 }}>{title}</h2>
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ color: "var(--text-muted)", fontSize: "12px", textTransform: "uppercase", borderBottom: "1px solid var(--border)" }}>
-              <th style={{ padding: "10px", textAlign: "left" }}>Nome</th>
-              <th style={{ padding: "10px", textAlign: "left" }}>Qtd.</th>
-              <th style={{ padding: "10px", textAlign: "left" }}>Preço</th>
-              <th style={{ padding: "10px", textAlign: "left" }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                <td style={{ padding: "10px" }}>{item.name}</td>
-                <td style={{ padding: "10px" }}>{item.quantity} {item.unit}</td>
-                <td style={{ padding: "10px" }}>R$ {item.price.toFixed(2)}</td>
-                <td style={{ padding: "10px" }}><StatusBadge>{item.status}</StatusBadge></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <article className="producer-stat-card">
+      <div className="producer-stat-icon">{icon}</div>
+      <div>
+        <span>{label}</span>
+        <strong>{value}</strong>
+        <p>{description}</p>
       </div>
+    </article>
+  );
+}
+
+function EmptyState({
+  icon,
+  title,
+  text,
+}: {
+  icon: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="producer-empty-state">
+      <span>{icon}</span>
+      <h3>{title}</h3>
+      <p>{text}</p>
     </div>
+  );
+}
+
+function FormCard({
+  icon,
+  eyebrow,
+  title,
+  helper,
+  form,
+  setForm,
+  onSave,
+}: {
+  icon: string;
+  eyebrow: string;
+  title: string;
+  helper: string;
+  form: FormState;
+  setForm: (form: FormState) => void;
+  onSave: () => void;
+}) {
+  return (
+    <article className="producer-form-card">
+      <div className="producer-form-head">
+        <div className="producer-form-icon">{icon}</div>
+        <div>
+          <span>{eyebrow}</span>
+          <h2>{title}</h2>
+        </div>
+      </div>
+
+      <p className="producer-form-helper">{helper}</p>
+
+      <div className="producer-fields">
+        <label>
+          Nome
+          <input
+            placeholder="Ex: Tomate orgânico"
+            value={form.name}
+            onChange={(event) => setForm({ ...form, name: event.target.value })}
+          />
+        </label>
+
+        <label>
+          Categoria
+          <input
+            placeholder="Ex: Hortaliças"
+            value={form.category}
+            onChange={(event) => setForm({ ...form, category: event.target.value })}
+          />
+        </label>
+
+        <div className="producer-field-row">
+          <label>
+            Quantidade
+            <input
+              placeholder="0"
+              type="number"
+              value={form.quantity}
+              onChange={(event) => setForm({ ...form, quantity: event.target.value })}
+            />
+          </label>
+
+          <label>
+            Unidade
+            <input
+              placeholder="kg, ton, L"
+              value={form.unit}
+              onChange={(event) => setForm({ ...form, unit: event.target.value })}
+            />
+          </label>
+        </div>
+
+        <label>
+          Preço
+          <input
+            placeholder="Ex: 15.00"
+            type="number"
+            value={form.price}
+            onChange={(event) => setForm({ ...form, price: event.target.value })}
+          />
+        </label>
+      </div>
+
+      <button className="btn-primary producer-save-button" onClick={onSave}>
+        Salvar cadastro
+      </button>
+    </article>
+  );
+}
+
+function ListingTable({
+  title,
+  subtitle,
+  items,
+}: {
+  title: string;
+  subtitle: string;
+  items: Listing[];
+}) {
+  return (
+    <article className="producer-table-card">
+      <div className="producer-table-head">
+        <div>
+          <h2>{title}</h2>
+          <p>{subtitle}</p>
+        </div>
+
+        <span>{items.length} itens</span>
+      </div>
+
+      {items.length === 0 ? (
+        <EmptyState
+          icon="🌿"
+          title="Nenhum item cadastrado"
+          text="Cadastre um novo item para ele aparecer nesta lista."
+        />
+      ) : (
+        <div className="producer-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Qtd.</th>
+                <th>Preço</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <strong>{item.name}</strong>
+                    <small>{item.category}</small>
+                  </td>
+                  <td>
+                    {item.quantity} {item.unit}
+                  </td>
+                  <td>{formatCurrency(item.price)}</td>
+                  <td>
+                    <StatusBadge>{item.status}</StatusBadge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </article>
   );
 }
