@@ -1,152 +1,88 @@
-# Hackathon Boilerplate
+#  ConectaCampo
 
-Boilerplate completo para hackathons com autenticação (local + OAuth), RBAC e arquitetura escalável.
+## Sobre a Empresa
+A **ConectaCampo** é uma startup de economia circular voltada para o agronegócio, atuando como ponte entre pequenos produtores rurais e empresas que utilizam resíduos agropecuários e produtos orgânicos como matéria-prima. Através de uma plataforma digital, a empresa transforma materiais que seriam descartados em oportunidades de negócio sustentáveis, promovendo geração de renda, redução de desperdícios e fortalecimento da cadeia produtiva rural.
 
-## Stack
 
-### Backend
-- Node.js + Express + TypeScript
-- Prisma ORM + PostgreSQL
-- JWT + bcrypt
-- OAuth (Google + GitHub)
-- Helmet + CORS
+## O Problema
+Grande parte dos resíduos agrícolas e pecuários gerados por pequenos produtores é descartada, queimada ou subutilizada. Ao mesmo tempo, diversas empresas necessitam desses materiais para a produção de biofertilizantes, biogás, biomassa, compostagem, cosméticos naturais e outros produtos sustentáveis.
 
-### Frontend
-- React 18 + Vite + TypeScript
-- TailwindCSS
-- React Router DOM
-- Axios + Context API
 
-### DevOps
-- Docker + Docker Compose
+## Solução A Solução
+A ConectaCampo conecta produtores rurais e empresas compradoras por meio de uma plataforma digital especializada na comercialização de resíduos agropecuários e produtos orgânicos certificados.
 
-## Início Rápido
 
-### 1. Clone e configure as variáveis de ambiente
+## Funcionalidades
+-  **Cadastro de produtores rurais:** Mapeamento e inclusão simplificada no ecossistema.
+-  **Comercialização de resíduos agropecuários:** Ambiente intuitivo de compra e venda.
+-  **Intermediação entre vendedores e compradores:** Matchmaking inteligente entre a oferta e a demanda.
+-  **Rastreabilidade dos produtos:** Transparência sobre a origem e o trajeto do material.
+-  **Verificação de conformidade orgânica:** Validação de selos e critérios sustentáveis.
+-  **Apoio técnico especializado:** Consultoria para maximizar o valor dos subprodutos rurais.
 
-```bash
-cp .env.local .env
-```
 
-Edite o arquivo `.env` e configure:
-- `JWT_SECRET`: Uma string segura para assinar os tokens
-- `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`: Credenciais do Google OAuth
-- `GITHUB_CLIENT_ID` e `GITHUB_CLIENT_SECRET`: Credenciais do GitHub OAuth
+## Resíduos Comercializados
+A plataforma gerencia a destinação correta de uma ampla variedade de subprodutos:
+* Palha de milho
+* Frutas descartadas
+* Hortaliças fora do padrão
+* Esterco animal
+* Soro de leite
+* Bagaço de frutas
+* Cascas vegetais
+* Podas agrícolas
+* Biomassa vegetal
 
-### 2. Inicie os containers
 
-```bash
-docker-compose up -d
-```
+## Público-Alvo
 
-### 3. Execute as migrações do banco
+### Fornecedores (Oferta)
+* Pequenos produtores rurais
+* Agricultura familiar
+* Cooperativas
+* Pequenos laticínios
 
-```bash
-docker-compose exec backend npx prisma migrate dev
-```
+### Compradores (Demanda)
+* Empresas de biogás e bioenergia
+* Empresas de compostagem
+* Fabricantes de biofertilizantes
+* Indústrias de biomassa
+* Empresas de cosméticos naturais
+* Indústrias alimentícias
 
-### 4. Acesse a aplicação
 
-- **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:3001
-- **Health Check**: http://localhost:3001/api/health
+## Diferenciais
+*  Foco exclusivo e nichado no agronegócio.
+*  Economia circular aplicada de forma prática ao campo.
+*  Marketplace especializado com alta usabilidade.
+*  Sistema robusto de rastreabilidade de ponta a ponta.
+*  Rigorosa verificação de produtos orgânicos.
+*  Suporte técnico humanizado com especialistas do setor.
 
-## Configurando OAuth
 
-### Google
-1. Acesse [Google Cloud Console](https://console.cloud.google.com)
-2. Crie um projeto e ative a API do Google+
-3. Configure as credenciais OAuth 2.0
-4. Adicione `http://localhost:3001/api/auth/google/callback` como URI de redirecionamento
+## Modelo de Receita
+1. **Comissão:** Percentual sobre as transações realizadas na plataforma.
+2. **Assinaturas Premium:** Planos com recursos e serviços avançados para usuários.
+3. **Certificação:** Taxas de verificação e auditoria de conformidade dos produtores.
+4. **Logística:** Intermediação e inteligência no transporte dos resíduos.
+5. **Data & Insights:** Relatórios estruturados e inteligência de mercado para grandes indústrias.
 
-### GitHub
-1. Acesse [GitHub Developer Settings](https://github.com/settings/developers)
-2. Crie um novo OAuth App
-3. Configure a URL de callback: `http://localhost:3001/api/auth/github/callback`
 
-## Endpoints da API
+## Resumo do Estudo de Mercado
+O mercado de economia circular e sustentabilidade no agronegócio está em forte crescimento, impulsionado por práticas ESG, energias renováveis e pela busca por matérias-primas sustentáveis. No Brasil, milhões de toneladas de resíduos agropecuários ainda são descartadas inadequadamente, criando uma oportunidade significativa para reaproveitamento econômico.
 
-### Autenticação
-- `POST /api/auth/register` - Cadastro de usuário
-- `POST /api/auth/login` - Login local
-- `GET /api/auth/google` - Iniciar OAuth Google
-- `GET /api/auth/github` - Iniciar OAuth GitHub
+A ConectaCampo atuará inicialmente no **Rio Grande do Sul**, região com forte presença da agricultura familiar, produção leiteira e mercado de orgânicos em expansão. O modelo possui baixa concorrência especializada, alta escalabilidade e potencial para atender produtores, cooperativas e indústrias em todo o país.
 
-### Usuários (requer autenticação)
-- `GET /api/users/me` - Perfil do usuário logado
-- `GET /api/users` - Listar usuários (ADMIN)
-- `GET /api/users/:id` - Buscar usuário (ADMIN)
-- `POST /api/users` - Criar usuário (ADMIN)
-- `PUT /api/users/:id` - Atualizar usuário (ADMIN)
-- `DELETE /api/users/:id` - Remover usuário (ADMIN)
+Além disso, a crescente demanda por biogás, biofertilizantes, biomassa, compostagem e produtos orgânicos rastreáveis fortalece a viabilidade do negócio, que combina impacto ambiental positivo com geração de valor econômico para toda a cadeia produtiva.
 
-## Árvore de Diretórios
 
-```
-hackathon-boilerplate/
-├── docker-compose.yml
-├── .env.local
-├── .gitignore
-├── README.md
-│
-├── backend/
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── tsconfig.json
-│   │
-│   ├── prisma/
-│   │   └── schema.prisma
-│   │
-│   └── src/
-│       ├── server.ts
-│       │
-│       ├── config/
-│       │   ├── database.ts
-│       │   └── env.ts
-│       │
-│       ├── middlewares/
-│       │   ├── index.ts
-│       │   ├── checkAuth.ts
-│       │   └── checkRole.ts
-│       │
-│       └── modules/
-│           ├── auth/
-│           │   ├── auth.controller.ts
-│           │   ├── auth.routes.ts
-│           │   └── auth.service.ts
-│           │
-│           └── users/
-│               ├── users.controller.ts
-│               ├── users.routes.ts
-│               └── users.service.ts
-│
-└── frontend/
-    ├── Dockerfile
-    ├── package.json
-    ├── tsconfig.json
-    ├── vite.config.ts
-    ├── tailwind.config.js
-    ├── postcss.config.js
-    ├── index.html
-    │
-    └── src/
-        ├── main.tsx
-        ├── App.tsx
-        ├── index.css
-        │
-        ├── contexts/
-        │   └── AuthContext.tsx
-        │
-        ├── services/
-        │   └── api.ts
-        │
-        └── pages/
-            ├── Login.tsx
-            ├── Register.tsx
-            ├── Dashboard.tsx
-            └── AuthCallback.tsx
-```
+## Diretrizes Institucionais
 
-## Licença
+###  Missão
+Transformar resíduos agropecuários em oportunidades econômicas sustentáveis.
 
-MIT
+###  Visão
+Ser a principal plataforma brasileira de economia circular aplicada ao agronegócio.
+
+### Valores
+Sustentabilidade, Inovação, Transparência, Desenvolvimento rural e Economia circular.
