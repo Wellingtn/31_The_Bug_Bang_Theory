@@ -4,14 +4,14 @@ import { authService } from "./auth.service";
 export class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, role } = req.body;
 
-      if (!name || !email || !password) {
-        res.status(400).json({ error: "Nome, email e senha são obrigatórios" });
+      if (!name || !email || !password || !role) {
+        res.status(400).json({ error: "Nome, email, senha e tipo de usuário são obrigatórios" });
         return;
       }
 
-      const result = await authService.register({ name, email, password });
+      const result = await authService.register({ name, email, password, role });
       res.status(201).json(result);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erro ao registrar";

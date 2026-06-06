@@ -1,8 +1,10 @@
 // src/pages/Register.tsx
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth, type UserRole } from "../contexts/AuthContext";
 import "../styles/theme.css";
+import logo from "../assets/logo.png";
+import produtorImg from "../assets/produtor.png";
 
 function MiniRingCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -68,6 +70,7 @@ export default function Register() {
   const [email, setEmail]                 = useState("");
   const [password, setPassword]           = useState("");
   const [confirmPassword, setConfirm]     = useState("");
+  const [role, setRole]                   = useState<UserRole>("CLIENTE");
   const [error, setError]                 = useState("");
   const [isLoading, setIsLoading]         = useState(false);
 
@@ -78,7 +81,7 @@ export default function Register() {
     if (password.length < 6)          { setError("A senha deve ter pelo menos 6 caracteres"); return; }
     setIsLoading(true);
     try {
-      await register(name, email, password);
+      await register(name, email, password, role);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao criar conta. Tente novamente.");
     } finally {
@@ -89,12 +92,29 @@ export default function Register() {
   return (
     <div className="auth-root">
       {/* Left panel */}
-      <div className="auth-panel-left">
+      <div className="auth-panel-left auth-panel-left-image">
+        <img 
+          src={produtorImg} 
+          alt="" 
+          className="auth-bg-img" 
+          aria-hidden="true"
+        />
+
+        <div className="auth-bg-overlay" />
+
         <MiniRingCanvas />
+
         <div className="auth-panel-brand">
-          <span className="auth-panel-icon">◈</span>
-          <span className="auth-panel-name">HACKATHON</span>
-          <p className="auth-panel-tagline">Comece sua jornada hoje</p>
+          <img 
+            src={logo} 
+            alt="Logo ConectaCampo" 
+            className="auth-panel-logo"
+          />
+
+          <p className="auth-panel-tagline">
+            Do produtor ao consumidor.<br />
+            Sem desperdício.
+          </p>
         </div>
       </div>
 
@@ -165,6 +185,22 @@ export default function Register() {
                 placeholder="••••••••"
                 autoComplete="new-password"
               />
+            </div>
+
+            <div className="field">
+              <label htmlFor="role" className="field-label">Tipo de usuário</label>
+              <select
+                id="role"
+                value={role}
+                onChange={e => setRole(e.target.value as UserRole)}
+                required
+                className="field-input"
+              >
+                <option value="CLIENTE">Cliente / comprador</option>
+                <option value="EMPRESA">Empresa compradora</option>
+                <option value="PRODUTOR">Produtor rural</option>
+                <option value="ADMIN">Administrador</option>
+              </select>
             </div>
 
             <button type="submit" disabled={isLoading} className="btn-submit">

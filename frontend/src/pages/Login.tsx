@@ -1,8 +1,9 @@
-// src/pages/Login.tsx
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/theme.css";
+import backgroundLogin from "../assets/backgroundlogin.png";
+import logo from "../assets/logo.png";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
@@ -90,12 +91,29 @@ export default function Login() {
   return (
     <div className="auth-root">
       {/* Left panel */}
-      <div className="auth-panel-left">
+      <div className="auth-panel-left auth-panel-left-image">
+        <img 
+          src={backgroundLogin} 
+          alt="" 
+          className="auth-bg-img" 
+          aria-hidden="true"
+        />
+
+        <div className="auth-bg-overlay" />
+
         <MiniRingCanvas />
+
         <div className="auth-panel-brand">
-          <span className="auth-panel-icon">◈</span>
-          <span className="auth-panel-name">HACKATHON</span>
-          <p className="auth-panel-tagline">Sua plataforma de inovação</p>
+          <img 
+            src={logo} 
+            alt="Logo ConectaCampo" 
+            className="auth-panel-logo"
+          />
+
+          <p className="auth-panel-tagline">
+            Do produtor ao consumidor.<br />
+            Sem desperdício.
+          </p>
         </div>
       </div>
 

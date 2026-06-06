@@ -2,6 +2,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import "../styles/theme.css";
+import logo from "../assets/logo.png"; 
+import backgroundHome from "../assets/background-home.png";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -72,7 +74,12 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="home-root relative">
+    <div
+      className="home-root relative min-h-screen bg-cover bg-center bg-fixed"
+      style={{
+        backgroundImage: `linear-gradient(rgba(3, 10, 5, 0.68), rgba(3, 10, 5, 0.78)), url(${backgroundHome})`,
+      }}
+    >
       {/* Canvas fixo no fundo */}
       <canvas ref={canvasRef} className="home-canvas fixed inset-0 w-full h-full pointer-events-none z-0" />
 
@@ -81,9 +88,12 @@ export default function Home() {
         
         {/* Nav */}
         <nav className="home-nav flex justify-between items-center p-6">
-          <div className="home-nav-brand flex items-center gap-2">
-            <span className="home-nav-icon text-2xl">🌱</span>
-            <span className="home-nav-title">CONECTACAMPO</span>
+          <div className="home-nav-brand flex items-center gap-3">
+            <img 
+              src={logo} 
+              alt="Logo ConectaCampo" 
+              className="home-logo"
+            />
           </div>
           <div className="home-nav-right flex items-center gap-4">
             <DarkModeToggle />

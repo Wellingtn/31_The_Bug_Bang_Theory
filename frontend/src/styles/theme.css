@@ -697,3 +697,306 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-body);
 }
 .dash-info-val.mono { font-family: var(--font-mono); font-size: 12px; }
+
+/* ─────────────────────────────────────────
+   AJUSTE DE CONTRASTE DA HOME COM BACKGROUND
+───────────────────────────────────────── */
+
+.home-root {
+  min-height: 100vh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Navbar sobre imagem */
+.home-nav-title {
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65);
+}
+
+.home-nav-link {
+  color: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.home-nav-link:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* Botão dark mode */
+.home-nav .dark-toggle {
+  color: #1c261f;
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.home-nav .dark-toggle:hover {
+  background: #ffffff;
+  color: #0c120d;
+}
+
+/* Hero */
+.home-eyebrow {
+  color: #8cff9a;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+
+.home-headline {
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 4px 26px rgba(0, 0, 0, 0.78);
+}
+
+/* Esse pega o span "Valorizando o Campo" */
+.home-headline span {
+  color: #53e65f !important;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.85);
+}
+
+.home-sub {
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.75);
+}
+
+/* Botões da Home */
+.home-cta-group .btn-primary {
+  background: #2f9e44;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.home-cta-group .btn-primary:hover {
+  background: #37b24d;
+}
+
+.home-cta-group .btn-ghost {
+  color: rgba(255, 255, 255, 0.84);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.home-cta-group .btn-ghost:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.48);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* Footer */
+.home-footer {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.home-footer-stat,
+.home-footer-label {
+  color: rgba(255, 255, 255, 0.68);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+}
+
+.home-footer-dot {
+  background: #53e65f;
+  box-shadow: 0 0 12px rgba(83, 230, 95, 0.75);
+}
+/* ─────────────────────────────────────────
+   LOGIN COM IMAGEM DO PRODUTOR
+───────────────────────────────────────── */
+
+.auth-panel-left-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Deixa o canvas por cima da imagem, mas suave */
+.auth-panel-left-image .auth-panel-canvas {
+  opacity: 0.45;
+}
+
+/* Textos do painel esquerdo mais visíveis */
+.auth-panel-left-image .auth-panel-brand {
+  position: relative;
+  z-index: 2;
+  padding: 32px;
+  border-radius: 24px;
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.auth-panel-left-image .auth-panel-icon {
+  color: #53e65f;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.75);
+}
+
+.auth-panel-left-image .auth-panel-name {
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+
+.auth-panel-left-image .auth-panel-tagline {
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.85);
+}
+/* ─────────────────────────────────────────
+   LOGO HOME
+───────────────────────────────────────── */
+
+.home-logo {
+  width: 150px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.45));
+}
+
+@media (max-width: 640px) {
+  .home-logo {
+    width: 120px;
+  }
+}
+.home-nav-brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  background: transparent;
+  border-radius: 999px;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.home-nav-brand::before {
+  content: "";
+  position: absolute;
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.40);
+  filter: blur(1px);
+  z-index: 0;
+}
+
+.home-logo {
+  position: relative;
+  z-index: 1;
+  width: 145px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* ─────────────────────────────────────────
+   LOGO NO PAINEL DE CADASTRO
+───────────────────────────────────────── */
+
+.auth-panel-logo {
+  width: 190px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 24px;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.25));
+}
+
+.auth-panel-brand {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.auth-panel-tagline {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 300;
+  line-height: 1.15;
+  color: var(--text);
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ─────────────────────────────────────────
+   LOGIN / CADASTRO - LOGO SEM BLUR
+───────────────────────────────────────── */
+
+.auth-panel-left-image .auth-panel-brand,
+.auth-panel-brand {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+}
+
+.auth-panel-logo {
+  width: 190px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 28px;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.55));
+}
+
+.auth-panel-tagline {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4vw, 52px);
+  font-weight: 300;
+  line-height: 1.12;
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.85);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.auth-panel-left-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ─────────────────────────────────────────
+   BACKGROUND LOGIN / REGISTER
+───────────────────────────────────────── */
+
+.auth-panel-left-image {
+  position: relative;
+  overflow: hidden;
+  background: #0c120d;
+}
+
+.auth-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.auth-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(3, 10, 5, 0.55),
+    rgba(3, 10, 5, 0.72)
+  );
+  z-index: 1;
+}
+
+.auth-panel-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.auth-panel-brand {
+  position: relative;
+  z-index: 3;
+}

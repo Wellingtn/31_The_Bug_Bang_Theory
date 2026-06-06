@@ -1,18 +1,19 @@
 import prisma from "../../config/database";
 import bcrypt from "bcrypt";
+import { Role } from "@prisma/client";
 
 interface CreateUserInput {
   name: string;
   email: string;
   password?: string;
-  role?: "USER" | "ADMIN";
+  role?: Role;
 }
 
 interface UpdateUserInput {
   name?: string;
   email?: string;
   password?: string;
-  role?: "USER" | "ADMIN";
+  role?: Role;
 }
 
 const SALT_ROUNDS = 10;
@@ -59,20 +60,38 @@ export class UsersService {
       ? await bcrypt.hash(data.password, SALT_ROUNDS)
       : null;
 
-    return prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-        role: data.role || "USER",
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
+    const role = data.role || "CLIENTE";
+
+    return prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          password: hashedPassword,
+          role,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      if (role === "PRODUTOR") {
+        await tx.producer.create({ data: { userId: user.id, farmName: user.name } });
+      }
+
+      if (role === "CLIENTE") {
+        await tx.client.create({ data: { userId: user.id } });
+      }
+
+      if (role === "EMPRESA") {
+        await tx.company.create({ data: { userId: user.id, companyName: user.name } });
+      }
+
+      return user;
     });
   }
 

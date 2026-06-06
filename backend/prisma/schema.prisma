@@ -8,8 +8,10 @@ datasource db {
 }
 
 enum Role {
-  USER
   ADMIN
+  PRODUTOR
+  CLIENTE
+  EMPRESA
 }
 
 enum Provider {
@@ -18,15 +20,172 @@ enum Provider {
   GITHUB
 }
 
+enum ItemKind {
+  PRODUTO
+  RESIDUO
+}
+
+enum ListingStatus {
+  DISPONIVEL
+  EM_NEGOCIACAO
+  VENDIDO
+  INATIVO
+}
+
+enum OrderStatus {
+  PENDENTE
+  PROCESSANDO
+  CONCLUIDO
+  CANCELADO
+}
+
+enum SolicitationStatus {
+  ENVIADA
+  ACEITA
+  RECUSADA
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
   password  String?
   provider  Provider @default(LOCAL)
-  role      Role     @default(USER)
+  role      Role     @default(CLIENTE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  producer Producer?
+  client   Client?
+  company  Company?
+  orders   Order[]  @relation("RequesterOrders")
+
   @@map("users")
+}
+
+model Producer {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  farmName  String?
+  city      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products      Product[]
+  residues      Residue[]
+  solicitations Solicitation[]
+  assignedOrders Order[]       @relation("AssignedProducerOrders")
+
+  @@map("producers")
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("clients")
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  companyName String?
+  cnpj        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("companies")
+}
+
+model Product {
+  id         String        @id @default(uuid())
+  producerId String
+  name       String
+  category   String
+  quantity   Float
+  unit       String
+  price      Float
+  status     ListingStatus @default(DISPONIVEL)
+  verified   Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  producer      Producer       @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  matchedOrders Order[]        @relation("ProductOrderMatch")
+  solicitations Solicitation[]
+
+  @@map("products")
+}
+
+model Residue {
+  id         String        @id @default(uuid())
+  producerId String
+  name       String
+  category   String
+  quantity   Float
+  unit       String
+  price      Float
+  status     ListingStatus @default(DISPONIVEL)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  producer      Producer       @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  matchedOrders Order[]        @relation("ResidueOrderMatch")
+  solicitations Solicitation[]
+
+  @@map("residues")
+}
+
+model Order {
+  id                 String      @id @default(uuid())
+  requesterId        String
+  requesterType      Role
+  itemKind           ItemKind
+  itemName           String
+  quantity           Float
+  unit               String
+  status             OrderStatus @default(PENDENTE)
+  assignedProducerId String?
+  assignedProductId  String?
+  assignedResidueId  String?
+  notes              String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  requester        User          @relation("RequesterOrders", fields: [requesterId], references: [id], onDelete: Cascade)
+  assignedProducer Producer?     @relation("AssignedProducerOrders", fields: [assignedProducerId], references: [id])
+  assignedProduct  Product?      @relation("ProductOrderMatch", fields: [assignedProductId], references: [id])
+  assignedResidue  Residue?      @relation("ResidueOrderMatch", fields: [assignedResidueId], references: [id])
+  solicitations    Solicitation[]
+
+  @@map("orders")
+}
+
+model Solicitation {
+  id              String             @id @default(uuid())
+  orderId          String
+  producerId       String
+  productId        String?
+  residueId        String?
+  quantity         Float
+  status           SolicitationStatus @default(ENVIADA)
+  message          String?
+  responseMessage  String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  producer Producer @relation(fields: [producerId], references: [id], onDelete: Cascade)
+  product  Product? @relation(fields: [productId], references: [id])
+  residue  Residue? @relation(fields: [residueId], references: [id])
+
+  @@map("solicitations")
 }

@@ -8,11 +8,13 @@ import {
 } from "react";
 import api from "../services/api";
 
+export type UserRole = "ADMIN" | "PRODUTOR" | "CLIENTE" | "EMPRESA";
+
 interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 interface AuthContextData {
@@ -21,7 +23,7 @@ interface AuthContextData {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
   setAuthData: (token: string) => Promise<void>;
 }
@@ -35,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserFromToken = useCallback(async (storedToken: string) => {
     try {
-      const response = await api.get("/users/me", {
+      const response = await api.get<User>("/users/me", {
         headers: { Authorization: `Bearer ${storedToken}` },
       });
       setUser(response.data);
@@ -50,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    
+
     if (storedToken) {
       loadUserFromToken(storedToken).finally(() => setIsLoading(false));
     } else {
@@ -59,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadUserFromToken]);
 
   const login = async (email: string, password: string) => {
-    const response = await api.post("/auth/login", { email, password });
+    const response = await api.post<{ user: User; token: string }>("/auth/login", { email, password });
     const { user: userData, token: userToken } = response.data;
 
     localStorage.setItem("token", userToken);
@@ -69,8 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(userToken);
   };
 
-  const register = async (name: string, email: string, password: string) => {
-    const response = await api.post("/auth/register", { name, email, password });
+  const register = async (name: string, email: string, password: string, role: UserRole) => {
+    const response = await api.post<{ user: User; token: string }>("/auth/register", { name, email, password, role });
     const { user: userData, token: userToken } = response.data;
 
     localStorage.setItem("token", userToken);
@@ -85,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(newToken);
 
     try {
-      const response = await api.get("/users/me", {
+      const response = await api.get<User>("/users/me", {
         headers: { Authorization: `Bearer ${newToken}` },
       });
       setUser(response.data);

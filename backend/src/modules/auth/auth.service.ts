@@ -3,12 +3,13 @@ import jwt from "jsonwebtoken";
 import axios from "axios";
 import prisma from "../../config/database";
 import { config } from "../../config/env";
-import { Provider } from "@prisma/client";
+import { Provider, Role } from "@prisma/client";
 
 interface RegisterInput {
   name: string;
   email: string;
   password: string;
+  role: Role;
 }
 
 interface LoginInput {
@@ -24,6 +25,10 @@ interface OAuthUserData {
 
 const SALT_ROUNDS = 10;
 
+function isRole(value: string): value is Role {
+  return ["ADMIN", "PRODUTOR", "CLIENTE", "EMPRESA"].includes(value);
+}
+
 export class AuthService {
   private generateToken(user: { id: string; email: string; role: string }): string {
     return jwt.sign(
@@ -33,7 +38,25 @@ export class AuthService {
     );
   }
 
+  private async createProfileForRole(userId: string, role: Role, name: string) {
+    if (role === "PRODUTOR") {
+      await prisma.producer.create({ data: { userId, farmName: name } });
+    }
+
+    if (role === "CLIENTE") {
+      await prisma.client.create({ data: { userId } });
+    }
+
+    if (role === "EMPRESA") {
+      await prisma.company.create({ data: { userId, companyName: name } });
+    }
+  }
+
   async register(data: RegisterInput) {
+    if (!isRole(data.role)) {
+      throw new Error("Tipo de usuário inválido");
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -44,20 +67,37 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
-    const user = await prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-        provider: "LOCAL",
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          password: hashedPassword,
+          provider: "LOCAL",
+          role: data.role,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      if (data.role === "PRODUTOR") {
+        await tx.producer.create({ data: { userId: createdUser.id, farmName: data.name } });
+      }
+
+      if (data.role === "CLIENTE") {
+        await tx.client.create({ data: { userId: createdUser.id } });
+      }
+
+      if (data.role === "EMPRESA") {
+        await tx.company.create({ data: { userId: createdUser.id, companyName: data.name } });
+      }
+
+      return createdUser;
     });
 
     const token = this.generateToken(user);
@@ -104,8 +144,11 @@ export class AuthService {
           name: data.name,
           email: data.email,
           provider: data.provider,
+          role: "CLIENTE",
         },
       });
+
+      await this.createProfileForRole(user.id, "CLIENTE", user.name);
     }
 
     const token = this.generateToken(user);
@@ -140,7 +183,6 @@ export class AuthService {
   }
 
   async handleGoogleCallback(code: string) {
-    // Trocar código por tokens
     const tokenResponse = await axios.post(
       "https://oauth2.googleapis.com/token",
       {
@@ -154,7 +196,6 @@ export class AuthService {
 
     const { access_token } = tokenResponse.data;
 
-    // Buscar dados do usuário
     const userResponse = await axios.get(
       "https://www.googleapis.com/oauth2/v2/userinfo",
       {
@@ -184,7 +225,6 @@ export class AuthService {
   }
 
   async handleGitHubCallback(code: string) {
-    // Trocar código por token
     const tokenResponse = await axios.post(
       "https://github.com/login/oauth/access_token",
       {
@@ -199,12 +239,10 @@ export class AuthService {
 
     const { access_token } = tokenResponse.data;
 
-    // Buscar dados do usuário
     const userResponse = await axios.get("https://api.github.com/user", {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
-    // Buscar email (pode estar oculto)
     const emailsResponse = await axios.get(
       "https://api.github.com/user/emails",
       {
@@ -213,7 +251,7 @@ export class AuthService {
     );
 
     const primaryEmail = emailsResponse.data.find(
-      (e: { primary: boolean }) => e.primary
+      (emailInfo: { primary: boolean; email: string }) => emailInfo.primary
     )?.email;
 
     const email = primaryEmail || userResponse.data.email;
